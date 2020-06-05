@@ -1,19 +1,19 @@
-Plan de Implementacion:
+# Plan de Implementacion:
 
 Como se comenzara a implementar?
 
-Hardware:
+# Hardware:
   Listado de equipo para computo, almacenamiento y red disponible para la implementacion.
 
-Direccionamiento de Red:
+# Direccionamiento de Red:
   Segmentos de Red
   VLANs?
   Direcciones IP y MAC para los equipos.
 
-Configuraciones de Implementacion especificas:
+# Configuraciones de Implementacion especificas:
   Ansible playbooks?
 
-Requerimientos:
+# Requerimientos:
   Configuracion de Hardware (iDrac?, BIOS?, etc)
   Configuracion de switches.
   LUN iscsi?

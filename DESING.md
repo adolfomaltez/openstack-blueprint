@@ -1,12 +1,12 @@
-Documento de Diseño.
+# Documento de Diseño.
 
-Antecendentes:
+# Antecendentes:
   Contamos con 50 servidores fisicos y 100 virtuales, que dia a 
 hacen mas dificil su administracion.
 
-Sumario:
+# Sumario:
   
-Requerimientos:
+# Requerimientos:
   Se requiere una plataforma de nube privada, con las siguientes caracteristicas:
   - Open Source. Codigo abierto.
   - No hardware lock-in: Que se pueda usar con cualquier marca de servidores.
@@ -15,7 +15,7 @@ Requerimientos:
   - Portal Web para SelfService.
   - APIs, para usar con herramientas de automatizaavion (Terraform?)
 
-Arquitectura Fisica:
+# Arquitectura Fisica:
   Descripcion de tipos de nodos
   Especificaciones TEcnicas de cada tipo de nodo
   Switches
@@ -24,14 +24,14 @@ Arquitectura Fisica:
   Conexiones intergabinete
   Topologia de Red
 
-Arquitectura de Servicio:
+# Arquitectura de Servicio:
   Servicios y sus relaciones
   Diagrama
 
-Arquitectura de Inquilinos:
+# Arquitectura de Inquilinos:
   Conpute Flavors, images, arquitectura de identidad, IPAM? DDI?
 
-Roadmap:
+# Roadmap:
   Versiones
   Futuras versiones y actualizaciones
   Modo de actualizacion
