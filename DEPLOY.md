@@ -51,14 +51,22 @@ Version de Ceph: Octopus (15.2.3) May 2020
 
 # Direccionamiento de Red:
   Segmentos de Red
-  Red de servidores fisicos:    10.10.20.0/24
-  Red de administracion de VMs: 172.29.10.0/24
-  Tuneles VxLAN (tenant?):     172.29.20.0/24
-  Red de Almacenamiento (ceph): 172.29.30.0/24
+  Red de servidores fisicos    (undernetwork): 10.10.20.0/24
+  Red de administracion de VMs (netadmin):     172.29.10.0/24
+  Tuneles VxLAN (tenant?)      (nettenant):    172.29.20.0/24
+  Red de Almacenamiento (ceph) (netstorage):   172.29.30.0/24
 
+  Creacion de redes mediante script: 
+   - create-lans-debianhost01.sh
+   - create-lans-debianhost02.sh
+
+  
   VLANs?
 
   Direcciones IP y MAC para los equipos.
+
+  
+
 
 # Configuraciones de Implementacion especificas:
   Ansible playbooks?
