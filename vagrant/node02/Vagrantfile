@@ -1,4 +1,7 @@
 Vagrant.configure("2") do |config|
   config.vm.box = "debian/buster64"
-  config.vm.network "private_network", ip: "172.29.10.12"
+  config.vm.network "public_network", bridge: "admin2", ip: "172.29.10.201"
+  config.vm.network "public_network", bridge: "tenant2", ip: "172.29.20.201"
+  config.vm.network "public_network", bridge: "storage2", ip: "172.29.30.201"
 end
+
