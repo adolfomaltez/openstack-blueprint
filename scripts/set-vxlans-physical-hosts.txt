@@ -1,77 +1,56 @@
 Comandos para la creacion de redes:
 
-# debianhost01
-# create and configure the first admin interface (netadmin)
-ip link add dev admin1-sw type veth peer name admin1
-ip link set admin1-sw up
-ip link set admin1 up
-ip addr add 172.29.10.11/24 dev admin1
 
-# create and configure the first tenant interface (nettenant)
-ip link add dev tenant1-sw type veth peer name tenant1
-ip link set tenant1-sw up
-ip link set tenant1 up
-ip addr add 172.29.20.11/24 dev tenant1
-
-# create and configure the first storage interface (netstorage)
-ip link add dev storage1-sw type veth peer name storage1
-ip link set storage1-sw up
-ip link set storage1 up
-ip addr add 172.29.30.11/24 dev storage1
 
 # create bridges, they represent the virtual switches
 ovs-vsctl add-br br-admin
 ovs-vsctl add-br br-tenant
 ovs-vsctl add-br br-storage
 
-
-# plugin the simulated interfaces to the bridges
-ovs-vsctl add-port br-admin admin1-sw
-ovs-vsctl add-port br-tenant tenant1-sw
-ovs-vsctl add-port br-storage storage1-sw
-
-
-
-# debianhost02
+# Creacion de interfaces veth
 # create and configure the first admin interface (netadmin)
-ip link add dev admin2-sw type veth peer name admin2
-ip link set admin2-sw up
-ip link set admin2 up
-ip addr add 172.29.10.12/24 dev admin2
+ip link add dev admin-sw type veth peer name admin
+ip link set admin-sw up
+ip link set admin up
 
 # create and configure the first tenant interface (nettenant)
-ip link add dev tenant2-sw type veth peer name tenant2
-ip link set tenant2-sw up
-ip link set tenant2 up
-ip addr add 172.29.20.12/24 dev tenant2
+ip link add dev tenant-sw type veth peer name tenant
+ip link set tenant-sw up
+ip link set tenant up
 
 # create and configure the first storage interface (netstorage)
-ip link add dev storage2-sw type veth peer name storage2
-ip link set storage2-sw up
-ip link set storage2 up
-ip addr add 172.29.30.12/24 dev storage2
-
-# create bridges, they represent the virtual switches
-ovs-vsctl add-br br-admin
-ovs-vsctl add-br br-tenant
-ovs-vsctl add-br br-storage
+ip link add dev storage-sw type veth peer name storage
+ip link set storage-sw up
+ip link set storage up
 
 
 # plugin the simulated interfaces to the bridges
-ovs-vsctl add-port br-admin admin2-sw
-ovs-vsctl add-port br-tenant tenant2-sw
-ovs-vsctl add-port br-storage storage2-sw
-
+ovs-vsctl add-port br-admin admin-sw
+ovs-vsctl add-port br-tenant tenant-sw
+ovs-vsctl add-port br-storage storage-sw
 
 
 ## Creando tuneles VxLAN entre switches virtuales
 
-# debianhost01
+# nodo01
 ovs-vsctl add-port br-admin vxlan-admin -- set interface vxlan-admin type=vxlan options:remote_ip=10.10.20.50 options:key=5000
 ovs-vsctl add-port br-tenant vxlan-tenant -- set interface vxlan-tenant type=vxlan options:remote_ip=10.10.20.50 options:key=6000
 ovs-vsctl add-port br-storage vxlan-storage -- set interface vxlan-storage type=vxlan options:remote_ip=10.10.20.50 options:key=7000
 
-# debianhost02
+# nodo02
 ovs-vsctl add-port br-admin vxlan-admin -- set interface vxlan-admin type=vxlan options:remote_ip=10.10.20.40 options:key=5000
 ovs-vsctl add-port br-tenant vxlan-tenant -- set interface vxlan-tenant type=vxlan options:remote_ip=10.10.20.40 options:key=6000
 ovs-vsctl add-port br-storage vxlan-storage -- set interface vxlan-storage type=vxlan options:remote_ip=10.10.20.40 options:key=7000
+
+
+
+
+## vagrant up
+
+
+## Agregar bridges vbox a bridges con VxLAN
+
+ovs-vsctl add-port br-admin vboxnet0
+ovs-vsctl add-port br-tenant vboxnet1
+ovs-vsctl add-port br-storage vboxnet2
+
