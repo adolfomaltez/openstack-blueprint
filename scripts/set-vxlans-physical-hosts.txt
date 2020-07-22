@@ -2,12 +2,11 @@ Comandos para la creacion de redes:
 
 
 
-# create bridges, they represent the virtual switches
-ovs-vsctl add-br br-admin
-ovs-vsctl add-br br-tenant
-ovs-vsctl add-br br-storage
+# Crear virtual switches (si no existen)
+ovs-vsctl --may-exist add-br br-admin
+ovs-vsctl --may-exist add-br br-tenant
+ovs-vsctl --may-exist add-br br-storage
 
-# Creacion de interfaces veth
 # create and configure the first admin interface (netadmin)
 ip link add dev admin-sw type veth peer name admin
 ip link set admin-sw up
@@ -44,13 +43,21 @@ ovs-vsctl add-port br-storage vxlan-storage -- set interface vxlan-storage type=
 
 
 
-
 ## vagrant up
 
 
 ## Agregar bridges vbox a bridges con VxLAN
 
-ovs-vsctl add-port br-admin vboxnet0
-ovs-vsctl add-port br-tenant vboxnet1
-ovs-vsctl add-port br-storage vboxnet2
+ovs-vsctl --may-exist add-port br-admin vboxnet0
+ovs-vsctl --may-exist add-port br-tenant vboxnet1
+ovs-vsctl --may-exist add-port br-storage vboxnet2
+
+
+# Iniciar interfaces
+ip link set br-admin up
+ip link set br-storage up
+ip link set br-tenant up
+ip link set storage up
+ip link set admin up
+ip link set tenant up
 
