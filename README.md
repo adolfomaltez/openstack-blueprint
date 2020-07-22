@@ -1,2 +1,2 @@
 # openstack-blueprint
-Diseño de Data Center Openstack Nube Privada
+Diseño de Nube Privada utilizando OpenStack y Ceph
