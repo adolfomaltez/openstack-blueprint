@@ -2,6 +2,8 @@ BOX_IMAGE = "debian/buster64"
 NODE_COUNT = 10
 
 Vagrant.configure("2") do |config|
+  # Use the same key for each machine
+  config.ssh.insert_key = false
 
   (1..NODE_COUNT).each do |i|
     config.vm.define "node1-#{i}" do |subconfig|
