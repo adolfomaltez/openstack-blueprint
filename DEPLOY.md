@@ -16,12 +16,12 @@ Se instalara individualmente ceph (usando ansible) y luego se instalara y conect
 Se utilizara como referencia:
 
 ## OpenStack
-[https://docs.openstack.org/project-deploy-guide/openstack-ansible/ussuri/overview.html]
+https://docs.openstack.org/project-deploy-guide/openstack-ansible/ussuri/overview.html
 
 Version de OpenStack: Ussuri. Mayo 2020
 
 ## Ceph
-[https://docs.ceph.com/ceph-ansible/stable-5.0/]
+https://docs.ceph.com/ceph-ansible/stable-5.0/
 
 Version de Ceph: Octopus (15.2.3) May 2020
 
@@ -34,7 +34,7 @@ Listado de equipo para computo, almacenamiento y red disponible para la implemen
 
 Se utilizara una laptop fuera del segmento de red de los hosts fisicos, con la configuracion de la implementacion
 
-* alice (192.168.6.x) debian buster (10.4)
+* laptop (192.168.6.x) debian buster (10.4)
 
 ## Target host:      
 Se utilizaran 2 hosts fisicos que simularan ser un rack.
@@ -50,11 +50,12 @@ Cada servidor contiene:
 
 
 Se instanciaran 10 hosts virtuales (usando vagrant + virtuabox) en cada nodo, simulando ser un host fisico.
-## Openstack:
+## Openstack
 * 1 control plane node
 * 2 compute node
 * 2 network node
-##Ceph:
+
+## Ceph
 * 2 mon node
 * 2 osd node 
 * 1 mgr node
@@ -79,13 +80,11 @@ scripts/set-vxlans-physical-hosts.txt
 
 
 # Configuraciones de Implementacion especificas:
-  Ansible playbooks?
-  ceph
-  openstack
+## Ansible playbooks?
+## ceph
+## openstack
 
 # Requerimientos:
-  Configuracion de Hardware (iDrac?, BIOS?, etc)
-
-  Configuracion de switches.
-
-  LUN iscsi?
+## Configuracion de Hardware (iDrac?, BIOS?, UEFI?, PXE, etc)
+## Configuracion de switches.
+## LUN iscsi?
