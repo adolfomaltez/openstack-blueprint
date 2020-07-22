@@ -1,0 +1,11 @@
+[nodes]
+node1-1 ansible_ssh_host=127.0.0.1 ansible_ssh_port=2222
+node1-2 ansible_ssh_host=127.0.0.1 ansible_ssh_port=2200
+node1-3 ansible_ssh_host=127.0.0.1 ansible_ssh_port=2201
+node1-4 ansible_ssh_host=127.0.0.1 ansible_ssh_port=2202
+node1-5 ansible_ssh_host=127.0.0.1 ansible_ssh_port=2203
+node1-6 ansible_ssh_host=127.0.0.1 ansible_ssh_port=2204
+node1-7 ansible_ssh_host=127.0.0.1 ansible_ssh_port=2205
+node1-8 ansible_ssh_host=127.0.0.1 ansible_ssh_port=2206
+node1-9 ansible_ssh_host=127.0.0.1 ansible_ssh_port=2207
+node1-10 ansible_ssh_host=127.0.0.1 ansible_ssh_port=2208
