@@ -15,13 +15,12 @@ Vagrant.configure("2") do |config|
 
 
       subconfig.vm.provider "virtualbox" do |v|
-          v.memory = 4096
-          v.cpus = 4
-       # Create our own controller for consistency and to remove VM dependency
-          unless File.exist?("disk-#{i}-0.vdi")
-          # Adding OSD Controller;
-          # once the first disk is there assuming we don't need to do this
-          v.customize ['storagectl', :id,
+        v.memory = 4096
+        v.cpus = 4
+        # Create our own controller for consistency and to remove VM dependency unless File.exist?("disk-#{i}-0.vdi")
+        # Adding OSD Controller;
+        # once the first disk is there assuming we don't need to do this
+        v.customize ['storagectl', :id,
                         '--name', 'SATA Controller',
                         '--add', 'scsi']
           (0..2).each do |d|
@@ -34,9 +33,8 @@ Vagrant.configure("2") do |config|
                         '--device', 0,
                         '--type', 'hdd',
                         '--medium', "disk-#{i}-#{d}.vdi"]
-           end
+        end
       end
     end
   end
 end
-

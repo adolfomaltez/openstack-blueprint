@@ -4,11 +4,26 @@ apt-get install -y git ansible
 
 # Agregar al /etc/ansible/hosts
 
-[nodes1]
-node1-[1:10]
-[nodes2]
-node2-[1:10]
+#[nodes1]
+#node1-[1:10]
+#[nodes2]
+#node2-[1:10]
+-----------------------%<-------------
+## Ceph
+[grafana-server]
+node1-6
 
+[mgr]
+node1-6
+
+[mons]
+node1-7
+node1-8
+
+[osds]
+node1-9
+node1-10
+------------------>%------------------
 
 
 # Agregar al /etc/hosts
@@ -68,22 +83,6 @@ apt-get install python3-pip
 pip install -r requirements.txt
 
 
-## Agregar hosts al /etc/ansible/hosts
-
-[grafana-server]
-node1-6
-
-[mgr]
-node1-6
-
-[mons]
-node1-7
-node1-8
-
-[osds]
-node1-9
-node1-10
-
 ## Configurar implementacion
 cp -rp site.yml.sample site.yml
 cd group_vars
@@ -95,7 +94,11 @@ ceph_repository: community
 ceph_stable_release: octopus
 public_network: "172.29.10.0/0"
 cluster_network: "172.29.30.0/24"  
-monitor_interface: eth1
+monitor_interface: eth3
+monitor_address_block: 172.29.30.0/24
+devices:
+ - '/dev/sdb'
+ - '/dev/sdc'
 ------------>%-------------------
 
 
