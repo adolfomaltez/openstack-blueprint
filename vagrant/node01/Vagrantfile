@@ -12,9 +12,29 @@ Vagrant.configure("2") do |config|
       subconfig.vm.network "private_network", bridge: "admin", ip: "172.29.10.1#{i}"
       subconfig.vm.network "private_network", bridge: "tenant", ip: "172.29.20.1#{i}"
       subconfig.vm.network "private_network", bridge: "storage", ip: "172.29.30.1#{i}"
+
+
       subconfig.vm.provider "virtualbox" do |v|
           v.memory = 4096
           v.cpus = 4
+       # Create our own controller for consistency and to remove VM dependency
+          unless File.exist?("disk-#{i}-0.vdi")
+          # Adding OSD Controller;
+          # once the first disk is there assuming we don't need to do this
+          v.customize ['storagectl', :id,
+                        '--name', 'SATA Controller',
+                        '--add', 'scsi']
+          (0..2).each do |d|
+            v.customize ['createhd',
+                        '--filename', "disk-#{i}-#{d}",
+                        '--size', '11000'] unless File.exist?("disk-#{i}-#{d}.vdi")
+             v.customize ['storageattach', :id,
+                        '--storagectl', 'SATA Controller',
+                        '--port', 3 + d,
+                        '--device', 0,
+                        '--type', 'hdd',
+                        '--medium', "disk-#{i}-#{d}.vdi"]
+           end
       end
     end
   end

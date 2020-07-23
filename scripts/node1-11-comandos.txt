@@ -1,0 +1,103 @@
+# Comandos para node1-11: Este nodo sera desde donde implementaremos la nube
+
+apt-get install -y git ansible
+
+# Agregar al /etc/ansible/hosts
+
+[nodes1]
+node1-[1:10]
+[nodes2]
+node2-[1:10]
+
+
+
+# Agregar al /etc/hosts
+172.29.10.11 node1-1
+172.29.10.12 node1-2
+172.29.10.13 node1-3
+172.29.10.14 node1-4
+172.29.10.15 node1-5
+172.29.10.16 node1-6
+172.29.10.17 node1-7
+172.29.10.18 node1-8
+172.29.10.19 node1-9
+172.29.10.110 node1-10
+
+172.29.10.21 node2-1
+172.29.10.22 node2-2
+172.29.10.23 node2-3
+172.29.10.24 node2-4
+172.29.10.25 node2-5
+172.29.10.26 node2-6
+172.29.10.27 node2-7
+172.29.10.28 node2-8
+172.29.10.29 node2-9
+172.29.10.210 node2-10
+
+# Copiar la llave del nodo01 al nodo1-11
+
+fichero en nodo01:  /root/.vagrant.d/insecure_private_key
+fichero en nodo1-11: /home/vagrant/.ssh/id_rsa
+
+chmod 0500 /home/vagrant/.ssh/id_rsa 
+
+# Intercambiar llaves con cada uno de los 20 nodos
+ssh node1-1
+.
+.
+ssh node2-10
+
+# Probar acceso a los nodos
+ansible -m ping nodes1
+ansible -m ping nodes2
+
+
+
+# Instalar Ansible
+https://docs.ceph.com/ceph-ansible/stable-5.0/
+
+## Clonar repositorio ceph
+git clone https://github.com/ceph/ceph-ansible.git
+## Usar la rama stable-5.0 (octopus)
+cd ceph-ansible
+git checkout stable-5.0
+git pull
+
+## instalar dependencias
+apt-get install python3-pip
+pip install -r requirements.txt
+
+
+## Agregar hosts al /etc/ansible/hosts
+
+[grafana-server]
+node1-6
+
+[mgr]
+node1-6
+
+[mons]
+node1-7
+node1-8
+
+[osds]
+node1-9
+node1-10
+
+## Configurar implementacion
+cp -rp site.yml.sample site.yml
+cd group_vars
+cp -rp all.yml.sample all.yml
+
+-------------%<------------------
+ceph_origin: repository
+ceph_repository: community
+ceph_stable_release: octopus
+public_network: "172.29.10.0/0"
+cluster_network: "172.29.30.0/24"  
+monitor_interface: eth1
+------------>%-------------------
+
+
+# Ejecutar el playbook de ansible
+ansible-playbook site.yml
