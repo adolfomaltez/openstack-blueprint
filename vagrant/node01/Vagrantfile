@@ -1,5 +1,5 @@
 BOX_IMAGE = "debian/buster64"
-NODE_COUNT = 11
+NODE_COUNT = 10
 
 Vagrant.configure("2") do |config|
   # Use the same key for each machine
@@ -9,11 +9,9 @@ Vagrant.configure("2") do |config|
     config.vm.define "node1-#{i}" do |subconfig|
       subconfig.vm.box = BOX_IMAGE
       subconfig.vm.hostname = "node1-#{i}"
-      subconfig.vm.network "private_network", bridge: "admin", ip: "172.29.10.1#{i}"
-      subconfig.vm.network "private_network", bridge: "tenant", ip: "172.29.20.1#{i}"
-      subconfig.vm.network "private_network", bridge: "storage", ip: "172.29.30.1#{i}"
-
-
+      subconfig.vm.network "public_network", bridge: "br-admin", ip: "172.29.10.1#{i}"
+      subconfig.vm.network "public_network", bridge: "br-tenant", ip: "172.29.20.1#{i}"
+      subconfig.vm.network "public_network", bridge: "br-storage", ip: "172.29.30.1#{i}"
       subconfig.vm.provider "virtualbox" do |v|
         v.memory = 4096
         v.cpus = 4
