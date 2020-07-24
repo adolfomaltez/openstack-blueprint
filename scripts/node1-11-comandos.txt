@@ -1,13 +1,9 @@
 # Comandos para node1-11: Este nodo sera desde donde implementaremos la nube
 
-apt-get install -y git ansible
+apt-get install -y git ansible python3-pip
 
 # Agregar al /etc/ansible/hosts
 
-#[nodes1]
-#node1-[1:10]
-#[nodes2]
-#node2-[1:10]
 -----------------------%<-------------
 ## Ceph
 [grafana-server]
@@ -17,10 +13,14 @@ node1-6
 node1-6
 
 [mons]
-node1-7
-node1-8
+node1-7 monitor_address=172.29.10.17
+node1-8 monitor_address=172.29.10.18
+node1-9 monitor_address=172.29.10.19
+node1-10 monitor_address=172.29.10.110
 
 [osds]
+node1-7
+node1-8
 node1-9
 node1-10
 ------------------>%------------------
@@ -57,15 +57,10 @@ fichero en nodo1-11: /home/vagrant/.ssh/id_rsa
 chmod 0500 /home/vagrant/.ssh/id_rsa 
 
 # Intercambiar llaves con cada uno de los 20 nodos
-ssh node1-1
-.
-.
-ssh node2-10
+for i in $(seq 1 10); do ssh node1-$i; done
 
 # Probar acceso a los nodos
-ansible -m ping nodes1
-ansible -m ping nodes2
-
+ansible -m ping all
 
 
 # Instalar Ansible
@@ -78,28 +73,39 @@ cd ceph-ansible
 git checkout stable-5.0
 git pull
 
-## instalar dependencias
-apt-get install python3-pip
-pip install -r requirements.txt
+## instalar dependencias (como root)
+pip3 install -r requirements.txt
 
 
-## Configurar implementacion
+## Configurar implementacion (como usuario vagrant)
 cp -rp site.yml.sample site.yml
 cd group_vars
 cp -rp all.yml.sample all.yml
 
 -------------%<------------------
+dummy:
+
+dashboard_admin_user: admin
+dashboard_admin_password: p@ssw0rd
+grafana_admin_user: admin
+grafana_admin_password: p@ssw0rd
+
 ceph_origin: repository
 ceph_repository: community
 ceph_stable_release: octopus
-public_network: "172.29.10.0/0"
+public_network: "172.29.10.0/24"
 cluster_network: "172.29.30.0/24"  
-monitor_interface: eth3
-monitor_address_block: 172.29.30.0/24
+monitor_interface: eth1
+monitor_address_block: 172.29.10.0/24
+
 devices:
  - '/dev/sdb'
  - '/dev/sdc'
+ - '/dev/sdd'
 ------------>%-------------------
+
+# Instalar parted en los nodos osd
+apt-get install -y parted
 
 
 # Ejecutar el playbook de ansible
