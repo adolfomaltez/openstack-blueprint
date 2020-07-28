@@ -1,6 +1,20 @@
-# Comandos para node1-11: Este nodo sera desde donde implementaremos la nube
+# Comandos para node01: Desde donde implementaremos la nube
 
-apt-get install -y git ansible python3-pip
+# Instalar OpenVstwich
+
+# Setear VxLAN
+
+## Creando tuneles VxLAN entre switches virtuales
+
+
+
+# Crear interface pivote en node01
+ip link set br-admin up
+ifconfig br-admin 172.29.10.40 netmask 255.255.255.0
+
+# instalar paquetes
+
+apt-get install -y git python3-pip
 
 # Agregar al /etc/ansible/hosts
 
@@ -8,21 +22,31 @@ apt-get install -y git ansible python3-pip
 ## Ceph
 [grafana-server]
 node1-6
+node2-6
 
 [mgr]
 node1-6
+node2-6
 
 [mons]
 node1-7 monitor_address=172.29.10.17
 node1-8 monitor_address=172.29.10.18
 node1-9 monitor_address=172.29.10.19
 node1-10 monitor_address=172.29.10.110
+node2-7 monitor_address=172.29.10.27
+node2-8 monitor_address=172.29.10.28
+node2-9 monitor_address=172.29.10.29
+node2-10 monitor_address=172.29.10.210
 
 [osds]
 node1-7
 node1-8
 node1-9
 node1-10
+node2-7
+node2-8
+node2-9
+node2-10
 ------------------>%------------------
 
 
