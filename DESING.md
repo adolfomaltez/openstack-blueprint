@@ -16,6 +16,23 @@ Se requiere una plataforma de nube privada, con las siguientes caracteristicas:
 * APIs, para usar con herramientas de automatizacion IaC (Infraestructura como Codigo). Terraform?
 * Modulo de facturacion (billing).
 
+
+# Matriz de Opciones
+
+Caracteristicas | Xen | OpenStack | VMWare | Nutanix | Red Hat OpenStack
+--- | --- | --- | --- | --- | --
+Implementacion |Ya se tiene experiencia|inhouse (investigar)| 3 meses |3 meses?| 4 meses
+Administracion | Aislada, CLI | Centralizada, Web, API | Centralizada, Web, API? | Centralizada, Web, API?, CLI? | Centralizada, Web, API
+Soporte | inhouse | inhouse | Portal | Portal | Portal
+Ciclo de Vida | inhouse | inhouse | Bajo Soporte | Bajo Soporte | Bajo Soporte
+Flexibilidad | poca | mucha | poca | poca| media
+Licencia | libre | libre | subscripcion | subscripcion | subscripcion
+Costo | solo HW | solo HW | $?| $?| $?
+Proveedor Local | no | no | RAF, TECNASA | TECNASA | RedSoft (DATUM)
+Hardware | cualquiera | cualquiera | DellEMC VxRail/VRealize | DellEMC HC| cualquiera?
+
+
+
 # Arquitectura Fisica:
 ## Descripcion de tipos de nodos
 ## Especificaciones Tecnicas de cada tipo de nodo

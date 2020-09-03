@@ -1,0 +1,74 @@
+# Instalacion en nodo02:
+Kolla Ansible multinodo + ceph
+https://docs.openstack.org/kolla-ansible/latest/user/quickstart.html
+
+# Instalar dependencias
+apt-get update
+apt-get install -y python3-dev libffi-dev gcc libssl-dev git ansible \
+python3-pip
+
+
+
+# clonar repositorios
+git clone https://github.com/openstack/kolla
+git clone https://github.com/openstack/kolla-ansible
+
+# checkout a rama stable/ussuri
+cd kolla
+git checkout stable/ussuri
+cd ..
+cd kolla-ansible
+git checkout stable/ussuri
+cd ..
+
+# Instalar kolla
+pip3 install ./kolla
+pip3 install ./kolla-ansible
+
+mkdir -p /etc/kolla
+chown $USER:$USER /etc/kolla
+
+cp -r kolla-ansible/etc/kolla/* /etc/kolla
+cp kolla-ansible/ansible/inventory/* .
+
+
+# Configurar ansible
+/etc/ansible/ansible.cfg
+
+[defaults]
+host_key_checking=False
+pipelining=True
+forks=100
+
+
+
+# Editar multinode
+nano multinode
+
+ansible -i multinode all -m ping
+
+
+cd kolla-ansible/tools
+apt-get install python-cryptography python-oslo.utils python-yaml
+
+
+./generate_passwords.py
+
+pip3 install "ansible>=2.9,<2.10,!=2.9.10"
+
+en cada nodo
+ufw?
+apt-get install -y python-setuptools python-docker; exit
+
+## Bootstrap nodes
+kolla-ansible -i ./multinode bootstrap-servers
+
+
+## Precheck nodes
+kolla-ansible -i ./multinode prechecks
+
+## hacer el deploy
+kolla-ansible -i ./multinode build
+
+
+

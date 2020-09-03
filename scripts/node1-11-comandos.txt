@@ -1,4 +1,6 @@
 # Comandos para node01: Desde donde implementaremos la nube
+## Instalacion Kolla Ansible ceph externo
+
 
 # Instalar OpenVstwich
 
@@ -7,14 +9,13 @@
 ## Creando tuneles VxLAN entre switches virtuales
 
 
-
 # Crear interface pivote en node01
 ip link set br-admin up
 ifconfig br-admin 172.29.10.40 netmask 255.255.255.0
 
 # instalar paquetes
 
-apt-get install -y git python3-pip
+apt-get install -y git python3-pip python3-setuptools python3-wheel
 
 # Agregar al /etc/ansible/hosts
 
@@ -80,12 +81,6 @@ fichero en nodo1-11: /home/vagrant/.ssh/id_rsa
 
 chmod 0500 /home/vagrant/.ssh/id_rsa 
 
-# Intercambiar llaves con cada uno de los 20 nodos
-for i in $(seq 1 10); do ssh node1-$i; done
-
-# Probar acceso a los nodos
-ansible -m ping all
-
 
 # Instalar Ansible
 https://docs.ceph.com/ceph-ansible/stable-5.0/
@@ -101,10 +96,46 @@ git pull
 pip3 install -r requirements.txt
 
 
+# copiar el hosts al /etc/ansible/hosts
+
+
+
+# cambiar configuracion SSH (nodo por nodo)
+
+vagrant ssh node1-1
+sudo su
+passwd
+
+sed -i -e 's/#PermitRootLogin\ prohibit-password/PermitRootLogin\ yes/g' /etc/ssh/sshd_config
+sed -i -e 's/#PasswordAuthentication\ yes/PasswordAuthentication\ yes/g' /etc/ssh/sshd_config
+
+
+/etc/init.d/ssh restart
+
+exit
+exit
+
+
+
+
+# Intercambiar llaves con cada uno de los 20 nodos
+ssh-copy-id node1-1
+.
+ssh-copy-id node1-10
+
+ssh-copy-id node2-1
+.
+ssh-copy-id node2-10
+
+# Probar acceso a los nodos
+ansible -m ping all
+
+
 ## Configurar implementacion (como usuario vagrant)
 cp -rp site.yml.sample site.yml
 cd group_vars
 cp -rp all.yml.sample all.yml
+cd ..
 
 -------------%<------------------
 dummy:
@@ -117,10 +148,15 @@ grafana_admin_password: p@ssw0rd
 ceph_origin: repository
 ceph_repository: community
 ceph_stable_release: octopus
+
 public_network: "172.29.10.0/24"
 cluster_network: "172.29.30.0/24"  
+
 monitor_interface: eth1
 monitor_address_block: 172.29.10.0/24
+
+radosgw_interface: eth1
+radosgw_address_block: 172.29.10.0/24
 
 devices:
  - '/dev/sdb'
@@ -134,3 +170,53 @@ apt-get install -y parted
 
 # Ejecutar el playbook de ansible
 ansible-playbook site.yml
+
+
+
+
+## Pendiente 
+# Conexiones ansible hacia node2-x (ssh si funciona, ansible no)
+# Instalacion de ganesha-nfs server
+# Instalacion de MDS ???
+
+
+
+
+# Kolla en node01
+
+## instalar dependencias
+apt-get install -y python3-dev libffi.dev gcc libssl-dev python3-pip
+
+## clonar repositorios
+git clone https://github.com/openstack/kolla
+cd kolla
+git checkout stable/ussuri
+git pull
+exit
+
+git clone https://github.com/openstack/kolla-ansible
+cd kolla-ansible
+git checkout stable/ussuri
+git pull
+exit
+
+
+## instalar?
+pip3 install ./kolla
+pip3 install ./kolla-ansible
+
+mkdir -p /etc/kolla
+cp -r kolla-ansible/etc/kolla/* /etc/kolla
+
+# copiar el inventory
+cp kolla-ansible/ansible/inventory/multinode /etc/ansible/
+
+# Basicamente habria que agregar ls siguientes lineas al /etc/ansible/hosts
+
+cat /etc/kolla/multinode >> /etc/ansible/hosts
+
+
+## Configurar cehph externo?
+https://docs.openstack.org/kolla-ansible/latest/reference/storage/external-ceph-guide.html
+
+
