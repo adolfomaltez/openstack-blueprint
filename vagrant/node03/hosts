@@ -1,0 +1,19 @@
+[mons]
+node1 ansible_ssh_host=127.0.0.1 ansible_ssh_port=2222 ansible_ssh_user='vagrant' ansible_ssh_private_key_file='/root/.vagrant.d/insecure_private_key' monitor_address=10.10.10.11
+node2 ansible_ssh_host=127.0.0.1 ansible_ssh_port=2200 ansible_ssh_user='vagrant' ansible_ssh_private_key_file='/root/.vagrant.d/insecure_private_key' monitor_address=10.10.10.12
+node3 ansible_ssh_host=127.0.0.1 ansible_ssh_port=2201 ansible_ssh_user='vagrant' ansible_ssh_private_key_file='/root/.vagrant.d/insecure_private_key' monitor_address=10.10.10.13
+
+[osds]
+node1 ansible_ssh_host=127.0.0.1 ansible_ssh_port=2222 ansible_ssh_user='vagrant' ansible_ssh_private_key_file='/root/.vagrant.d/insecure_private_key' monitor_address=10.10.10.11
+node2 ansible_ssh_host=127.0.0.1 ansible_ssh_port=2200 ansible_ssh_user='vagrant' ansible_ssh_private_key_file='/root/.vagrant.d/insecure_private_key' monitor_address=10.10.10.12
+node3 ansible_ssh_host=127.0.0.1 ansible_ssh_port=2201 ansible_ssh_user='vagrant' ansible_ssh_private_key_file='/root/.vagrant.d/insecure_private_key' monitor_address=10.10.10.13
+
+[mgrs]
+node1 ansible_ssh_host=127.0.0.1 ansible_ssh_port=2222 ansible_ssh_user='vagrant' ansible_ssh_private_key_file='/root/.vagrant.d/insecure_private_key' monitor_address=10.10.10.11
+
+[rgws]
+node1 ansible_ssh_host=127.0.0.1 ansible_ssh_port=2222 ansible_ssh_user='vagrant' ansible_ssh_private_key_file='/root/.vagrant.d/insecure_private_key' monitor_address=10.10.10.11
+
+[grafana-server]
+node3 ansible_ssh_host=127.0.0.1 ansible_ssh_port=2201 ansible_ssh_user='vagrant' ansible_ssh_private_key_file='/root/.vagrant.d/insecure_private_key' monitor_address=10.10.10.13
+

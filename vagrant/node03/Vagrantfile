@@ -1,0 +1,45 @@
+BOX_IMAGE = "debian/buster64"
+NODE_COUNT = 3
+DISK_COUNT = 3
+
+# br-public:     10.10.10.0/24 Red de VMs
+# br-cluser:     10.20.20.0/24 Red de Storage Ceph.
+# br-management: 10.30.30.0/24 Red de Management.
+
+Vagrant.configure("2") do |config|
+  # Use the same key for each machine
+  config.ssh.insert_key = false
+
+  (1..NODE_COUNT).each do |i|
+    config.vm.define "node#{i}" do |subconfig|
+      subconfig.vm.box = BOX_IMAGE
+      subconfig.vm.hostname = "node#{i}"
+      subconfig.vm.network "public_network", bridge: "br-public", ip: "10.10.10.1#{i}"
+      subconfig.vm.network "public_network", bridge: "br-cluster", ip: "10.20.20.1#{i}"
+      subconfig.vm.network "public_network", bridge: "br-management", ip: "10.30.30.#{i}"
+      subconfig.vm.provider "virtualbox" do |v|
+        v.memory = 4096
+        v.cpus = 4
+        # Create our own controller for consistency and to remove VM dependency 
+        unless File.exist?("disk0-node1.vdi")
+        # Adding OSD Controller;
+        # once the first disk is there assuming we don't need to do this
+        v.customize ['storagectl', :id,
+                        '--name', 'OSD Controller',
+                        '--add', 'scsi']
+        end
+          (0..DISK_COUNT).each do |d|
+            v.customize ['createhd',
+                        '--filename', "disk#{d}-node#{i}",
+                        '--size', '11000'] unless File.exist?("disk#{d}-node#{i}.vdi")
+            v.customize ['storageattach', :id,
+                        '--storagectl', 'OSD Controller',
+                        '--port', 3 + d,
+                        '--device', 0,
+                        '--type', 'hdd',
+                        '--medium', "disk#{d}-node#{i}.vdi"]
+        end
+      end
+    end
+  end
+end

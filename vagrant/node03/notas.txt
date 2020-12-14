@@ -1,0 +1,107 @@
+# Levantar 3 nodos debian/buster64 con Vagrantfile
+4 interfaces de red
+1 disk OS + 4 disks ceph
+
+# Instalar ceph-ansible en los nodos vagrant
+https://dev.to/ingoleajinkya/deploying-docker-based-ceph-cluster-using-ceph-ansible-3cc7
+
+# Crear fichero hosts
+
+[mons]
+node1 ansible_ssh_host=127.0.0.1 ansible_ssh_port=2222 ansible_ssh_user='vagrant' ansible_ssh_private_key_file='/root/.vagrant.d/insecure_private_key'
+node2 ansible_ssh_host=127.0.0.1 ansible_ssh_port=2200 ansible_ssh_user='vagrant' ansible_ssh_private_key_file='/root/.vagrant.d/insecure_private_key'
+node3 ansible_ssh_host=127.0.0.1 ansible_ssh_port=2201 ansible_ssh_user='vagrant' ansible_ssh_private_key_file='/root/.vagrant.d/insecure_private_key'
+
+[osds]
+node1 ansible_ssh_host=127.0.0.1 ansible_ssh_port=2222 ansible_ssh_user='vagrant' ansible_ssh_private_key_file='/root/.vagrant.d/insecure_private_key'
+node2 ansible_ssh_host=127.0.0.1 ansible_ssh_port=2200 ansible_ssh_user='vagrant' ansible_ssh_private_key_file='/root/.vagrant.d/insecure_private_key'
+node3 ansible_ssh_host=127.0.0.1 ansible_ssh_port=2201 ansible_ssh_user='vagrant' ansible_ssh_private_key_file='/root/.vagrant.d/insecure_private_key'
+
+[mgrs]
+node1 ansible_ssh_host=127.0.0.1 ansible_ssh_port=2222 ansible_ssh_user='vagrant' ansible_ssh_private_key_file='/root/.vagrant.d/insecure_private_key'
+
+[rgws]
+node1 ansible_ssh_host=127.0.0.1 ansible_ssh_port=2222 ansible_ssh_user='vagrant' ansible_ssh_private_key_file='/root/.vagrant.d/insecure_private_key'
+
+
+# Download ceph-ansible
+
+git clone https://github.com/ceph/ceph-ansible.git
+cd ceph-ansible
+git checkout stable-5.0
+
+# Copiar fichero de configuracion
+cp -rp group_vars/all.yml.sample group_vars/all.yml
+cp -rp group_vars/osds.yml.sample group_vars/osds.yml
+cp -rp site-container.yml.sample site-container.yml
+
+# Editar fichero all.yml
+generate_fsid: true
+monitor_interface: eth1
+journal_size: 5120
+public_network: 10.10.10.0/24
+cluster_network: 10.20.20.0/24
+ceph_docker_image: "ceph/daemon"
+ceph_docker_image_tag: latest-mimic
+containerized_deployment: true
+ceph_docker_registry: docker.io
+radosgw_interface: eth1
+
+# Editar fichero group_vars/osds.yml
+devices:
+  - /dev/sdb
+  - /dev/sdc
+  - /dev/sdd
+  - /dev/sde
+
+
+# instalar parted en cada nodo (antes de correr los ansible)
+apt-get install parted
+
+# editar /etc/ansible/ansible.cfg
+[defaults]
+host_key_checking=False
+pipelining = True
+forks=100
+action_plugins = /root/openstack-blueprint/vagrant/node03/ceph-ansible/plugins/actions
+library = /root/openstack-blueprint/vagrant/node03/ceph-ansible/library
+callback_plugins = /root/openstack-blueprint/vagrant/node03/ceph-ansible/plugins/callback
+filter_plugins = /root/openstack-blueprint/vagrant/node03/ceph-ansible/plugins/filter
+roles_path = /root/openstack-blueprint/vagrant/node03/ceph-ansible/roles
+
+
+
+## Tunnel
+
+Tunel hacia ceph-03 (pasando por debianhost01)
+ssh -L 127.0.0.1:80:20.20.20.13:8443 administrador@10.10.20.40
+
+
+Crear el pool (desde la gui)
+https://localhost/
+
+
+# Crear pool
+root@ceph-03:~# ceph osd pool create libvirt-pool
+root@ceph-03:~# rbd feature disable pool1/ceph-xen-01-rbd1 object-map fast-diff deep-flatten
+root@ceph-03:~# rbd map ceph-xen-01-rbd1 --pool pool1
+
+
+# https://docs.ceph.com/en/latest/rbd/libvirt/
+
+apt-get install qemu qemu-block-extra
+
+root@ceph-03:~# ceph auth get-or-create client.libvirt mon 'profile rbd' osd 'profile rbd pool=libvirt-pool'
+[client.libvirt]
+	key = AQCdfX9fPnKAOBAA3qjJFhQZI4WWxPr+XAa5Yw==
+root@ceph-03:~# 
+
+root@ceph-03:~# qemu-img create -f raw rbd:libvirt-pool/new-libvirt-image 2G
+
+root@ceph-03:~# qemu-img info  rbd:libvirt-pool/new-libvirt-image
+image: json:{"driver": "raw", "file": {"pool": "libvirt-pool", "image": "new-libvirt-image", "driver": "rbd"}}
+file format: raw
+virtual size: 2.0G (2147483648 bytes)
+disk size: unavailable
+cluster_size: 4194304
+
