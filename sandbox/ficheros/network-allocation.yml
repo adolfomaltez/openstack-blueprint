@@ -1,0 +1,14 @@
+---
+aio_ips:
+  controller0: 192.168.33.3
+  seed0: 192.168.33.11
+  baremetal0: 192.168.33.12
+  baremetal1: 192.168.33.13
+  baremetal2: 192.168.33.14
+  baremetal3: 192.168.33.15
+  baremetal4: 192.168.33.16
+  baremetal5: 192.168.33.17
+  baremetal6: 192.168.33.18
+  baremetal7: 192.168.33.19
+  baremetal8: 192.168.33.20
+

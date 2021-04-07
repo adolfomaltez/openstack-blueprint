@@ -1,0 +1,174 @@
+# Instalar kayobe en controller0 en sandbox multinode (vagrant)
+# https://docs.openstack.org/kayobe/latest/configuration/scenarios/all-in-one/overcloud.html
+
+
+# Instalacion de KVM con "nested virtualization"
+
+# Inicializar sandbox (usando KVM)
+cd sandbox
+vagrant up --provider=libvirt
+
+# Conectarse a control0
+vagrant ssh control0
+
+
+# Instalar dependencias
+sudo su
+cd
+dnf install -y python3-devel python3-virtualenv gcc libffi-devel nano git net-tools
+
+
+## Crear prticion
+cfdisk /dev/vdb 
+## (gpt, new, 120GB, write, yes, quit)
+mkfs.ext4 /dev/vdb1 
+mkdir /mnt/vdb1
+mount /dev/vdb1 /mnt/vdb1
+
+# Mover y hacer enlances simbolicos (por espacio)
+
+mkdir /mnt/vdb1/kayobe
+mkdir /mnt/vdb1/libvirt
+
+ln -s /mnt/vdb1/kayobe /root/kayobe
+ln -s /mnt/vdb1/libvirt /var/lib/libvirt
+
+
+# Crear virtualenv kayobe
+cd /root/kayobe/
+mkdir -p src venvs
+virtualenv /root/kayobe/venvs/kayobe
+source /root/kayobe/venvs/kayobe/bin/activate
+
+
+# Instalar kayobe
+pip install -U pip
+pip install kayobe
+deactivate
+
+virtualenv /root/kayobe/venvs/kayobe
+source /root/kayobe/venvs/kayobe/bin/activate
+
+# Clonar repositorio kayobe-config
+cd /root/kayobe/src
+git clone https://opendev.org/openstack/kayobe-config -b stable/victoria
+
+cd kayobe-config
+cp etc/kayobe/inventory/hosts.example etc/kayobe/inventory/hosts
+git rm etc/kayobe/inventory/hosts.example
+
+
+# Configurar el bridge manualmente
+ip a del 192.168.33.10/24 dev eth1
+ip l add breth1 type bridge
+ip l set breth1 up
+ip a add 192.168.33.3/24 dev breth1
+#ip l add eth1 type dummy
+ip l set eth1 up
+ip l set eth1 master breth1
+
+
+# Editar /etc/hosts
+192.168.33.3  control0
+192.168.33.11 seed0
+192.168.33.12 baremetal0
+192.168.33.13 baremetal1
+192.168.33.14 baremetal2
+192.168.33.15 baremetal3
+192.168.33.16 baremetal4
+192.168.33.17 baremetal5
+192.168.33.18 baremetal6
+192.168.33.19 baremetal7
+192.168.33.20 baremetal8
+
+
+
+
+#  Editar (configurar) ficheros kayobe
+nano etc/kayobe/inventory/hosts
+nano etc/kayobe/inventory/group_vars/controllers/network-interfaces
+nano etc/kayobe/inventory/group_vars/compute/network-interfaces
+nano etc/kayobe/networks.yml
+nano etc/kayobe/network-allocation.yml
+
+# Editar (configurar) ficheros kolla
+nano etc/kayobe/kolla/globals.yml
+
+
+# Hacer bootstrap de control host
+source kayobe-env
+
+kayobe control host bootstrap
+
+
+## Poner key RSA en seed0 y baremetal 0 - 8 (control0# cat /root/.ssh/id_rsa.pub)
+
+vagrant ssh seed0
+sudo su
+mkdir /root/.ssh
+echo "ssh-rsa AAAA ... ... SsOs= root@control0" > /root/.ssh/authorized_keys
+exit
+exit
+
+
+## https://docs.openstack.org/kayobe/victoria/deployment.html#seed
+
+
+# Deploy SEED
+
+# Actualizar IP del seed0
+nano etc/kayobe/network-allocation.yml
+
+# Hay que actualizar los ficheros de network-interfaces para cada tipo de servidor (seed, compute, controller)
+
+kayobe seed host configure
+kayobe seed container image build
+kayobe seed service deploy
+
+
+
+## Deploy overcloud
+kayobe overcloud host configure
+kayobe overcloud container image build
+kayobe overcloud container image pull
+
+
+# Comentar /etc/hosts de los controllers
+kayobe overcloud service deploy
+
+
+
+## Comentar las 2 lineas de localhost
+## 127.0.0.1 localhost en /etc/resolv.conf
+
+
+# Resolver misconfiguration de docker
+#iptables -P FORWARD ACCEPT
+
+
+# ejecutar init-runonce para probar que funciona bien
+
+pip install python-openstackclient
+export EXT_NET_CIDR=192.168.33.0/24
+export EXT_NET_GATEWAY=192.168.33.1
+export EXT_NET_RANGE="start=192.168.33.100,end=192.168.33.254"
+source "${KOLLA_CONFIG_PATH:-/etc/kolla}/admin-openrc.sh"
+${KOLLA_SOURCE_PATH}/tools/init-runonce
+
+# Crear primer servidor virtual
+openstack server create --image cirros --flavor m1.tiny --key-name mykey --network demo-net demo1
+openstack floating ip create --project admin --subnet public1-subnet public1
+openstack server add floating ip demo1 192.168.33.121
+
+ssh cirros@192.168.33.121
+
+
+
+# Hacer el tunnel SSH
+# Tunnel a la Interface Web Dashboard Openstack Horizon (prodesk -> blade017 -> control0)
+ssh -L 10.168.10.39:80:192.168.33.2:80 administrador@10.10.20.187
+
+clave:
+grep -nR "keystone_admin_password"
+
+

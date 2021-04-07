@@ -15,6 +15,8 @@ Se requiere una plataforma de nube privada, con las siguientes caracteristicas:
 * Portal Web para Autoservicio (SelfService).
 * APIs, para usar con herramientas de automatizacion IaC (Infraestructura como Codigo). Terraform?
 * Modulo de facturacion (billing).
+* Alamacenamiento (Bloque, Objetos, Ficheros).
+* Hiperconvergencia (HCI) ?
 
 
 # Matriz de Opciones

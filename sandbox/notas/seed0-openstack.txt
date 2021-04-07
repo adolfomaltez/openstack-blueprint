@@ -1,0 +1,147 @@
+# Instalacion de OpenStack en Sanbox (vagrant virtual baremetal)
+#
+# kayobe: Containerized OpenStack on Bare Metal. (K-O-B: Kolla over Bifrost)
+#   - kolla: Build container images for OpenStack.
+#   - bifrost: Ansible Playbooks for deploy images on Bare Metal.
+#     - ironic: Bare metal discovery, instrospection, provision.
+
+
+# Enviroment: Seed (Automated Setup).
+
+#https://docs.openstack.org/kayobe/victoria/contributor/automated.html
+
+sudo su
+# Agregar centos a sudoers
+echo 'centos	ALL=(ALL)	NOPASSWD: ALL' >> /etc/sudoers
+
+
+
+
+# Prepar host
+dnf install epel-release
+
+dnf -y install git python3-virtualenv nano rust
+dnf -y update
+dnf -y upgrade
+
+cd 
+
+systemctl is-enabled firewalld 
+systemctl stop firewalld 
+systemctl disable firewalld
+setenforce 0
+sed -i 's/^SELINUX=enforcing/SELINUX=disabled/' /etc/selinux/config
+
+
+
+
+git clone https://opendev.org/openstack/kayobe.git -b stable/victoria
+cd kayobe
+
+mkdir -p config/src
+cd config/src/
+
+git clone https://opendev.org/openstack/kayobe-config-dev.git -b stable/victoria config/src/kayobe-config
+
+
+# Configurar el bridge manualmente
+ip addr del 192.168.42.10/24 dev eth1
+
+ip l add breth1 type bridge
+ip l set breth1 up
+ip a add 192.168.33.5/24 dev breth1
+#ip l add eth1 type dummy
+ip l set eth1 up
+ip l set eth1 master breth1
+
+
+
+# Reinstalar los repositorios YUM.
+# copie los mismos repositorios de una seed en maquina virtual
+# No estoy muy seguro de que va, pero funciono
+
+
+
+# Quitar que interfaces W_LAN_MINSAL y eth1 boot=yes
+
+
+
+# Install kayobe and dependencies
+
+python -m pip install -U pip
+pip3 install -r requirements.txt
+
+cd ~/kayobe
+./dev/install.sh
+
+# Deploy seed services
+
+export KAYOBE_SEED_VM_PROVISION=0
+./dev/seed-deploy.sh
+
+
+
+
+### Use tenks ???
+#export TENKS_CONFIG_PATH=config/src/kayobe-config/tenks.yml
+#./dev/tenks-deploy-overcloud.sh ./tenks
+
+
+
+# Activate kayobe environment
+
+source dev/environment-setup.sh
+
+
+# Inspect and provision the overcloud hardware:
+kayobe overcloud inventory discover
+kayobe overcloud hardware inspect
+kayobe overcloud provision
+
+
+# Configure and deploy OpenStack to the control plane 
+kayobe overcloud host configure
+
+kayobe overcloud container image pull
+
+kayobe overcloud service deploy
+
+source config/src/kayobe-config/etc/kolla/public-openrc.sh
+
+kayobe overcloud post configure
+
+
+
+
+# At this point it should be possible to access the Horizon GUI 
+ssh -L 10.168.10.39:80:192.168.121.119:80 administrador@10.10.20.187
+
+http://10.168.10.39
+admin
+grep -nR "keystone_admin_pass"
+
+
+#The following script will register some resources
+
+source config/src/kayobe-config/etc/kolla/public-openrc.sh
+./config/src/kayobe-config/init-runonce.sh
+
+
+# Following the instructions displayed by the above script, boot a VM.
+source ~/os-venv/bin/activate
+openstack server create --image cirros \
+          --flavor m1.tiny \
+          --key-name mykey \
+          --network demo-net demo1
+
+# Assign a floating IP to the server to make it accessible.
+openstack floating ip create public1
+fip=$(openstack floating ip list -f value -c 'Floating IP Address' --status DOWN | head -n 1)
+openstack server add floating ip demo1 $fip
+
+# Check SSH access to the VM.
+ssh cirros@$fip
+
+# If the ssh command above fails you may need to reconfigure the local
+networking setup again:
+~/kayobe/config/src/kayobe-config/configure-local-networking.sh

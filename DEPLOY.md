@@ -1,9 +1,7 @@
 # Plan de Implementacion de Nube privada (Openstack + Ceph)
 
-Como prueba de concepto (PoC), se realizara una implementacion en 2 servidores fisicos.
+Como prueba de concepto (PoC), se realizara una implementacion en 9 servidores virtuales.
 
-* node01
-* node02
 
 Se utilizaran las siguientes aplicaciones:
 * OpenStack 
